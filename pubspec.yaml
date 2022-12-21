@@ -1,5 +1,5 @@
 name: networkx
-description: Network exception types.
+description: Custom network error types for easy error handling.
 version: 0.1.0
 homepage: https://github.com/elias8/networkx
 

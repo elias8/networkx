@@ -1,39 +1,75 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+Custom network error types for easy error handling.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Install the latest version from pub.dev.
+
+```yaml
+dependencies:
+  networkx: ^0.1.0
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
 ```dart
-const like = 'sample';
+import 'package:networkx/networkx.dart';
+
+void main() {
+  const networkError = NetworkError.api(ApiValidationError.emailAlreadyExists);
+
+  // `maybeWhen`
+  networkError.maybeWhen(
+    api: (error) {
+      if (error == ApiValidationError.emailAlreadyExists) {
+        print('Email already exists.');
+      } else if (error == ApiValidationError.phoneNumberAlreadyExists) {
+        print('Phone number already exists.');
+      }
+    },
+    orElse: () => print('Something went wrong.'),
+  );
+
+  // `match`
+  if (networkError.match((error) => error.isEmailAlreadyExists)) {
+    print('Email already exists');
+  }
+
+  // `cast`
+  final signError = networkError.cast(SignUpError.fromApiError);
+
+  // `name`
+  print(signError.name);
+}
+
+enum ApiValidationError {
+  emailAlreadyExists,
+  phoneNumberAlreadyExists;
+
+  bool get isEmailAlreadyExists => this == emailAlreadyExists;
+
+  bool get isPhoneNumberAlreadyExists => this == phoneNumberAlreadyExists;
+}
+
+enum SignUpError {
+  emailAlreadyExists,
+  phoneNumberAlreadyExists,
+  otherValidationError;
+
+  factory SignUpError.fromApiError(ApiValidationError error) {
+    if (error.isEmailAlreadyExists) {
+      return SignUpError.emailAlreadyExists;
+    } else if (error.isPhoneNumberAlreadyExists) {
+      return SignUpError.phoneNumberAlreadyExists;
+    } else {
+      return SignUpError.otherValidationError;
+    }
+  }
+}
+
 ```
 
-## Additional information
+## Maintainers
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+- [Elias Andualem](https://github.com/elias8)
+
+
