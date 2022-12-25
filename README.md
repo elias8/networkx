@@ -68,6 +68,9 @@ enum SignUpError {
 
 ```
 
+
+- See an example project [here](https://github.com/elias8/last_fm) for more detail and usage. 
+
 ## Maintainers
 
 - [Elias Andualem](https://github.com/elias8)
