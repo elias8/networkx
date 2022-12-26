@@ -35,10 +35,10 @@ void main() {
   }
 
   // `cast`
-  final signError = networkError.cast(SignUpError.fromApiError);
+  final signUpError = networkError.cast(SignUpError.fromApiError);
 
   // `name`
-  print(signError.name);
+  print(signUpError.name);
 }
 
 enum ApiValidationError {
@@ -67,9 +67,9 @@ enum SignUpError {
 }
 
 ```
+---
 
-
-- See an example project [here](https://github.com/elias8/last_fm) for more detail and usage. 
+You can use it with any HTTP client library. For example, [here](https://gist.github.com/elias8/2d5c44e1337178e2efa37210534272b5), you can find an extension to the [Dio](https://pub.dev/packages/dio) library, so you don't have to write it from scratch. Or you can see an example project [here](https://github.com/elias8/last_fm) for more detail and usage.
 
 ## Maintainers
 
