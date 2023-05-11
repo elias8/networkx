@@ -30,25 +30,16 @@ mixin _NetworkErrorHelperMixin<T> {
   /// Returns a short name of the error type. In case of [NetworkError.api],
   /// when the error type [T] is an `enum`, the enum name will be returned.
   String get name {
-    if (isApiError) {
-      final error = (this as _ApiError<T>).error;
-      if (error is Enum) return error.name;
-      return 'api';
-    } else if (isCancellationError) {
-      return 'cancelled';
-    } else if (isConnectionError) {
-      return 'connection';
-    } else if (isFormatError) {
-      return 'format';
-    } else if (isServerError) {
-      return 'server';
-    } else if (isUnhandledError) {
-      return 'unhandled';
-    } else if (isTimeoutError) {
-      return 'timeout';
-    } else {
-      throw FallThroughError();
-    }
+    return switch (this) {
+      _RequestCancelledError() => 'cancelled',
+      _InternetConnectionError() => 'connection',
+      _NetworkFormatError() => 'format',
+      _ServerError() => 'server',
+      _NetworkTimeoutError() => 'timeout',
+      _UnhandledError() => 'unhandled',
+      _ApiError(error: var error) when error is Enum => error.name,
+      _ => 'api',
+    };
   }
 
   R maybeWhen<R>({
@@ -61,24 +52,17 @@ mixin _NetworkErrorHelperMixin<T> {
     EmptyCallBack<R>? unhandled,
     required EmptyCallBack<R> orElse,
   }) {
-    if (this is _ApiError<T> && api != null) {
-      final error = (this as _ApiError<T>).error;
-      return api(error);
-    } else if (this is _RequestCancelledError<T> && cancelled != null) {
-      return cancelled();
-    } else if (this is _InternetConnectionError<T> && connection != null) {
-      return connection();
-    } else if (this is _NetworkFormatError<T> && format != null) {
-      return format();
-    } else if (this is _ServerError<T> && server != null) {
-      return server();
-    } else if (this is _NetworkTimeoutError<T> && timeout != null) {
-      return timeout();
-    } else if (this is _UnhandledError<T> && unhandled != null) {
-      return unhandled();
-    } else {
-      return orElse();
-    }
+    return switch (this) {
+          _RequestCancelledError() => cancelled?.call(),
+          _InternetConnectionError() => connection?.call(),
+          _NetworkFormatError() => format?.call(),
+          _ServerError() => server?.call(),
+          _NetworkTimeoutError() => timeout?.call(),
+          _UnhandledError() => unhandled?.call(),
+          _ApiError(error: var error) => api?.call(error),
+          _ => orElse(),
+        } ??
+        orElse();
   }
 
   R when<R>({
@@ -90,26 +74,16 @@ mixin _NetworkErrorHelperMixin<T> {
     required EmptyCallBack<R> cancelled,
     required EmptyCallBack<R> connection,
   }) {
-    if (this is _ApiError<T>) {
-      final error = (this as _ApiError<T>).error;
-      return api(error);
-    } else if (this is _RequestCancelledError<T>) {
-      return cancelled();
-    } else if (this is _InternetConnectionError<T>) {
-      return connection();
-    } else if (this is _NetworkFormatError<T>) {
-      return format();
-    } else if (this is _ServerError<T>) {
-      return server();
-    } else if (this is _NetworkTimeoutError<T>) {
-      return timeout();
-    } else if (this is _UnhandledError<T>) {
-      return unhandled();
-    } else {
-      // coverage:ignore-start
-      throw FallThroughError();
-      // coverage:ignore-end
-    }
+    return switch (this) {
+      _RequestCancelledError() => cancelled(),
+      _InternetConnectionError() => connection(),
+      _NetworkFormatError() => format(),
+      _ServerError() => server(),
+      _NetworkTimeoutError() => timeout(),
+      _UnhandledError() => unhandled(),
+      _ApiError(error: var error) => api(error),
+      _ => throw StateError('Unexpected error: $this'),
+    };
   }
 
   R? whenOrNull<R>({
@@ -121,23 +95,15 @@ mixin _NetworkErrorHelperMixin<T> {
     EmptyCallBack<R>? cancelled,
     EmptyCallBack<R>? connection,
   }) {
-    if (this is _ApiError<T> && api != null) {
-      final error = (this as _ApiError<T>).error;
-      return api(error);
-    } else if (this is _RequestCancelledError<T> && cancelled != null) {
-      return cancelled();
-    } else if (this is _InternetConnectionError<T> && connection != null) {
-      return connection();
-    } else if (this is _NetworkFormatError<T> && format != null) {
-      return format();
-    } else if (this is _ServerError<T> && server != null) {
-      return server();
-    } else if (this is _NetworkTimeoutError<T> && timeout != null) {
-      return timeout();
-    } else if (this is _UnhandledError<T> && unhandled != null) {
-      return unhandled();
-    } else {
-      return null;
-    }
+    return switch (this) {
+      _RequestCancelledError() => cancelled?.call(),
+      _InternetConnectionError() => connection?.call(),
+      _NetworkFormatError() => format?.call(),
+      _ServerError() => server?.call(),
+      _NetworkTimeoutError() => timeout?.call(),
+      _UnhandledError() => unhandled?.call(),
+      _ApiError(error: var error) => api?.call(error),
+      _ => null,
+    };
   }
 }

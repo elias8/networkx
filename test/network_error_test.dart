@@ -263,7 +263,7 @@ void main() {
         expect(
           // ignore: void_checks
           () => const NetworkError<void>.api(0).cast<int>(),
-          throwsA(isA<FallThroughError>()),
+          throwsA(isA<StateError>()),
         );
         expect(
           const NetworkError<void>.cancelled().cast<int>(),

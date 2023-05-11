@@ -13,7 +13,7 @@ typedef EmptyNetworkError = NetworkError<void>;
 /// layer above. By using [ NetworkError.api ] we can pass any custom
 /// error [T] such as a validation error returned from a server.
 @immutable
-abstract class NetworkError<T>
+sealed class NetworkError<T>
     with _NetworkErrorHelperMixin<T>
     implements NetworkException {
   /// It occurs when a request is successfully made to a server and an error is
@@ -110,28 +110,22 @@ class _UnhandledError<T> extends NetworkError<T> {
   const _UnhandledError() : super._();
 }
 
-/// Extensions that are applied specifically on an empty [NetworkError]s.
-extension EmptyNetworkErrorX on NetworkError<void> {
+/// Extensions that are applied specifically on [EmptyNetworkError].
+extension EmptyNetworkErrorX on EmptyNetworkError {
   /// Casts current exception's type from `void` to type [R].
   ///
   /// Since we are using `void` type on the current exception its guaranteed
   /// that we won't have a [NetworkError.api].
   NetworkError<R> cast<R extends Object>() {
-    if (this is _RequestCancelledError<void>) {
-      return _RequestCancelledError<R>();
-    } else if (this is _InternetConnectionError<void>) {
-      return _InternetConnectionError<R>();
-    } else if (this is _NetworkFormatError<void>) {
-      return _NetworkFormatError<R>();
-    } else if (this is _ServerError<void>) {
-      return _ServerError<R>();
-    } else if (this is _NetworkTimeoutError<void>) {
-      return _NetworkTimeoutError<R>();
-    } else if (this is _UnhandledError<void>) {
-      return _UnhandledError<R>();
-    } else {
-      throw FallThroughError();
-    }
+    return switch (this) {
+      _RequestCancelledError() => _RequestCancelledError<R>(),
+      _InternetConnectionError() => _InternetConnectionError<R>(),
+      _NetworkFormatError() => _NetworkFormatError<R>(),
+      _ServerError() => _ServerError<R>(),
+      _NetworkTimeoutError() => _NetworkTimeoutError<R>(),
+      _UnhandledError() => _UnhandledError<R>(),
+      _ApiError() => throw StateError('Should not be called'),
+    };
   }
 }
 
@@ -143,32 +137,24 @@ extension NetworkErrorError<T extends Object> on NetworkError<T> {
   /// [NetworkError.api]. So for this reason, we should provide function
   /// that converts the api error from type [T] to [R].
   NetworkError<R> cast<R extends Object>(R Function(T error) convert) {
-    if (this is _ApiError<T>) {
-      final error = (this as _ApiError<T>).error;
-      if (error is R) return _ApiError(error);
-      return _ApiError(convert(error));
-    } else if (this is _RequestCancelledError<T>) {
-      return _RequestCancelledError<R>();
-    } else if (this is _InternetConnectionError<T>) {
-      return _InternetConnectionError<R>();
-    } else if (this is _NetworkFormatError<T>) {
-      return _NetworkFormatError<R>();
-    } else if (this is _ServerError<T>) {
-      return _ServerError<R>();
-    } else if (this is _NetworkTimeoutError<T>) {
-      return _NetworkTimeoutError<R>();
-    } else if (this is _UnhandledError<T>) {
-      return _UnhandledError<R>();
-    } else {
-      // coverage:ignore-start
-      throw FallThroughError();
-      // coverage:ignore-end
-    }
+    return switch (this) {
+      _RequestCancelledError() => _RequestCancelledError<R>(),
+      _InternetConnectionError() => _InternetConnectionError<R>(),
+      _NetworkFormatError() => _NetworkFormatError<R>(),
+      _ServerError() => _ServerError<R>(),
+      _NetworkTimeoutError() => _NetworkTimeoutError<R>(),
+      _UnhandledError() => _UnhandledError<R>(),
+      _ApiError<T>(error: final error) when error is R => _ApiError<R>(error),
+      _ApiError<T>(error: final error) => _ApiError<R>(convert(error)),
+    };
   }
 
   /// Returns `true` when the error is an [NetworkError.api] and the error
   /// matches by using the [matcher] callback.
   bool match(bool Function(T error) matcher) {
-    return maybeWhen(api: matcher, orElse: () => false);
+    return switch (this) {
+      _ApiError<T>(error: final error) => matcher(error),
+      _ => false
+    };
   }
 }
