@@ -1,3 +1,7 @@
+## 0.2.0
+
+- Update SDK version constraint to `'>=3.0.0 <4.0.0'`
+
 ## 0.1.2
 
 - Updated `README.md` doc.
