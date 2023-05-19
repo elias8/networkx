@@ -6,7 +6,7 @@ Install the latest version from pub.dev.
 
 ```yaml
 dependencies:
-  networkx: ^0.1.0
+  networkx: ^0.2.1
 ```
 
 ## Usage

@@ -1,3 +1,8 @@
+## 0.2.1
+
+- Expose `ResponseError<T>` type
+- Upgrade test dependency
+
 ## 0.2.0
 
 - Update SDK version constraint to `'>=3.0.0 <4.0.0'`
