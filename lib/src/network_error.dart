@@ -7,6 +7,10 @@ part 'network_error_mixin.dart';
 /// A network error that doesn't contain an API error.
 typedef EmptyNetworkError = NetworkError<void>;
 
+/// A network error with a response code ranging from 400 to 499. The type
+/// contains the response data [T].
+typedef ResponseError<T> = _ApiError<T>;
+
 /// Generic network exception.
 ///
 /// Helps us to propagate network exceptions from a remote source layer to any
